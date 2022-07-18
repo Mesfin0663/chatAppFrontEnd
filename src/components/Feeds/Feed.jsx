@@ -1,25 +1,43 @@
-import axios from 'axios';
-import React,{useContext, useEffect, useState} from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import Post from "../post/Post";
+import Share from "../share/Share";
+import "./feed.css";
+import { Posts } from "../../dummyData";
+import { useContext, useState } from "react";
+import { useEffect } from "react";
+import axios from '../../axios';
+import { io } from "socket.io-client";
+import { AuthContext } from "../../context/AuthContext";
+import { Link } from 'react-router-dom';
 
-import './feed.css';
+export default function Feed({username}) {
+  const [posts, setPosts] = useState([]);
+  const {user} = useContext(AuthContext);
 
-const axio = axios.create({
-  baseURL:'http://localhost:8800/api',
-  timeout: 30000
-})
+  useEffect(() => {
 
-function Feed() {
-  const {user} = useContext(AuthContext)
-  console.log(user)
-  const [apiResponse, setApiResponse] = useState({});
-const [loading, setLoading] = useState(false);
- 
+    const fetchPosts = async () => {
+      try {
+        const res = username? await axios.get("posts/profile/"+username) 
+        : await axios.get(`posts/timeline/${user._id}`);
+        setPosts(res.data.sort((p1,p2)=>{
+          return new Date(p2.createdAt)-new Date(p1.createdAt);
+        }))
+      } catch (err) {
+        console.log(err)
+      }
+
+    }
+    fetchPosts();
+
+  }, [])
   return (
     <div className="feed">
-    
+      <div className="feedWrapper">
+      { username === user.username && <Share />}
+        {posts.map((p) => (
+          <Post key={p._id} post={p} />
+        ))}
+      </div>
     </div>
-  )
+  );
 }
-
-export default Feed

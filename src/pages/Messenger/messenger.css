@@ -22,11 +22,12 @@
     overflow-y: scroll;
     padding-right: 10px;
 }
-.chatBoxBotton{
+.chatBoxBottom{
     margin-top: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid gray
 }
 .chatOnline{
     flex: 3;
@@ -42,13 +43,13 @@
     height: 90px;
     padding: 10px;
 }
-.chatSubmitButton{
+.chatSubmitionButton{
     width: 70px;
     height: 40px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: teal;
+    background-color: white;
     color:white
 }
 .chatBoxWrapper,
@@ -63,4 +64,12 @@
     font-size: 35px;
     color: rgb(224,220,220);
     cursor: default;
+}
+@media  only screen and (max-width: 780px){
+    .chatMenu{
+        display: none;
+    }
+    .chatOnline{
+        display: none;
+    }
 }

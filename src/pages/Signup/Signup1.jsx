@@ -2,16 +2,17 @@ import React,{useState, useRef} from 'react';
 import './signup.css';
 
 import axios from '../../axios';
-import { withRouter } from 'react-router';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from 'react-router';
+//import { withRouter } from 'react-router';
+//import { useHistory } from "react-router-dom";
 
 function Signup(){
     const username = useRef();
   const email = useRef();
   const password = useRef();
   const passwordAgain = useRef();
-  const history = useHistory();
-
+  //const history = useHistory();
+const navigate= useNavigate()
 const registerUser = async (e) =>{
     e.preventDefault();
    if(passwordAgain.current.value != password.current.value){
@@ -25,7 +26,8 @@ const registerUser = async (e) =>{
      };
      try{
       await axios.post( '/auth/register', user) ;
-      history.push("/signin") 
+      navigate("/signin");
+    //  history.push("/signin") 
     }catch(err){
        console.log(err);
      }

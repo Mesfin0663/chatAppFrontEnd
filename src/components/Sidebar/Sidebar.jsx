@@ -9,6 +9,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import EventIcon from '@mui/icons-material/Event';
 import SchoolIcon from '@mui/icons-material/School';
+import { Link } from 'react-router-dom';
 function Sidebar() {
   return (
     <div className="sidebar">
@@ -16,11 +17,13 @@ function Sidebar() {
         <ul className="sidebarList">
           <li className="sidebarlistItem">
                <RssFeedIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Feed</span>
+         <span className="sidebarListItemText">Feed</span>
           </li>
           <li className="sidebarlistItem">
                <ChatIcon className="sidebarIcon"/>
+               <Link to="/messenger2"> 
                <span className="sidebarListItemText">Chats</span>
+               </Link>
           </li>
           <li className="sidebarlistItem">
                <PlayCircleFilledWhiteIcon className="sidebarIcon"/>
@@ -38,25 +41,40 @@ function Sidebar() {
                <HelpOutlineIcon className="sidebarIcon"/>
                <span className="sidebarListItemText">Questions</span>
           </li>
-          <li className="sidebarlistItem">
+          {/* <li className="sidebarlistItem">
                <WorkOutlineIcon className="sidebarIcon"/>
                <span className="sidebarListItemText">Jobs</span>
-          </li>
+          </li> */}
           <li className="sidebarlistItem">
                <EventIcon className="sidebarIcon"/>
                <span className="sidebarListItemText">Events</span>
           </li>
-          <li className="sidebarlistItem">
+          {/* <li className="sidebarlistItem">
                <SchoolIcon className="sidebarIcon"/>
                <span className="sidebarListItemText">Courses</span>
-          </li>
+          </li> */}
         </ul>
         <button className="sidebarButton">
           Show More
         </button>
         <hr />
         <ul className="sidebarFriendList">
-          
+          <li className="sidebarFriend">
+               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
+               <span className="sidebarFriendName">Jone Doe</span>
+          </li>
+          <li className="sidebarFriend">
+               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
+               <span className="sidebarFriendName">Jone Doe</span>
+          </li>
+          <li className="sidebarFriend">
+               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
+               <span className="sidebarFriendName">Jone Doe</span>
+          </li>
+          <li className="sidebarFriend">
+               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
+               <span className="sidebarFriendName">Jone Doe</span>
+          </li>
         </ul>
       </div>
 

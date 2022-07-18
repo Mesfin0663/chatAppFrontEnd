@@ -1,14 +1,16 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState,useRef } from 'react'
 import Toolbar from '../../components/Toolbar/Toolbar'
 import { AuthContext } from '../../context/AuthContext'
 import Conversations from '../../components/Conversations/Conversations';
-import './messenger.css';
 import Message from '../../components/message/Message';
 import ChatOnline from '../../components/ChatOnline/ChatOnline';
 import { useEffect } from 'react';
 import axios from '../../axios';
-import { useRef } from 'react';
 import { io } from "socket.io-client";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import SendIcon from '@mui/icons-material/Send';
+
+import './messenger.css';
 
 function Messenger() {
     const [conversations, setConversations] = useState([]);
@@ -23,6 +25,7 @@ function Messenger() {
    const [arrivalMessage, setArrivalMessage] = useState(null);
    const socket = useRef()
    useEffect(()=>{
+    //ws://localhost:8900
     socket.current = io("https://hahu-chat-app-socket.herokuapp.com/")
     socket.current.on("getMessage", data =>{ // executes whene the a new message arrives
      setArrivalMessage({
@@ -108,7 +111,7 @@ useEffect(()=>{
       <div className="messenger">
         <div className="chatMenu">
             <div className="chatMenuWrapper">
-                <input placeholder='Search for friends' type="text" className="chatMenuInput" />
+                <input placeholder='Conversations' type="text" className="chatMenuInput" />
                {
                 conversations.map((c)=>(
                     <div key={c._id} onClick ={()=> setCurrentChat(c)}>
@@ -131,9 +134,9 @@ useEffect(()=>{
                 ))
                }
                </div>
-               <div className="chatBoxBotton">
+               <div className="chatBoxBottom">
                    <textarea className='chatMessageInput'  placeholder='Write Something..' onChange={(e) => setNewMessage(e.target.value) } value = {newMessage}></textarea>
-                   <button className='chatSubmitButton' onClick={handleMessageSubmit}>Send</button>
+                   <button className='chatSubmitionButton' onClick={handleMessageSubmit}><SendIcon color="primary"/></button>
                </div>
                         </>: <span className='noConversationText'>Open a conversation to start a chat</span>
                     }
@@ -142,6 +145,7 @@ useEffect(()=>{
         </div>
         <div className="chatOnline">
             <div className="chatOnlineWrapper">
+            
                 <ChatOnline onlineUsers={onlineUsers} currentId = {user._id} setCurrentChat={setCurrentChat}/>
        
 

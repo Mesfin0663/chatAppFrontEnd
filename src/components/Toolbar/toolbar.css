@@ -6,6 +6,7 @@
     align-items: center;
     position:sticky;
     top:0;
+    z-index: 3;
 }
 .topbarLeft{
     flex:3;
@@ -95,6 +96,13 @@
 }
 @media  screen and (max-width: 780px){
     .topbarContainer{
-        flex-direction: column ;
+
+    }
+    .topbarCenter{
+        display: none;
+    }
+    .logo{
+        display: none;
+        
     }
 }

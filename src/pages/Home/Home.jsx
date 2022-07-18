@@ -15,6 +15,7 @@ function Home() {
         <Sidebar/>
         <Feed />
         <Rightbar/>
+        
         </div>
        
     </>

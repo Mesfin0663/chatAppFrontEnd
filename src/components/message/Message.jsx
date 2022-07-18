@@ -27,12 +27,11 @@ function Message({message,own,senderId}) {
    
     <p className="messageText">
     <div className="senderInfo">
-    <img src={senderProfile? senderProfile: "/assets/person/1.jpeg"} alt="" className="messageImg" />
-    <p>{own? "You:": senderName+":"}</p>
+    <img src={senderProfile? senderProfile: "assets/person/defaultProfile.png"} alt="" className="messageImg" />
+    <p className=''>{own? "You:": senderName+":"}</p>
 
-  
      </div>
-      {message.text}</p>
+     <p className='textf'>{message.text}</p>      </p>
    
     </div>
 

@@ -1,7 +1,8 @@
 import React, { useContext,useEffect, useState ,useRef} from 'react'
-import { AuthContext } from '../../../context/AuthContext'
 import axios from '../../../axios';
 import { io } from "socket.io-client";
+import {UserContext} from '../../../contexts/UserContext'
+import {useSelector, useDispatch} from 'react-redux'
 
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -12,7 +13,7 @@ import M2message from './M2message/M2message';
 import { useOutletContext } from "react-router-dom";
 
 function M2Chat({conversID, setConversID}){
-  const socket = useRef();
+  // const socket = useRef();
   
     const [conid , setConid] = useState();
     const navigate = useNavigate();
@@ -20,10 +21,11 @@ function M2Chat({conversID, setConversID}){
     let {id} = useParams();
   const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const {user} = useContext(AuthContext);
-   
+    const {user:authUser} = useSelector((state)=> state.auth)
+    const {userData:user} = useContext(UserContext)
+    const {socket} = useContext(UserContext)   
     const [onlineUsers, setOnlineUsers] = useState([])
-
+    console.log(socket)
     const scrollRef = useRef(); // used to scroll to the most recent message by default
     //Fetching all conversation of a user 
 
@@ -49,39 +51,34 @@ useEffect(()=>{
   if(user){
     //socket.current = io("ws://localhost:8900");
     
-    socket.current = io("https://hahu-chat-app-socket.herokuapp.com/")
+    // socket.current = io("https://hahu-chat-app-socket.herokuapp.com/")
 
-    socket.current.emit("addUser", user._id);
-    socket.current.on("getUsers", users=>{
-        setOnlineUsers(user.followings.filter((f)=> users.some((u) => u.userId == f)))
-        // console.log("from socket io",users)
-      })
+    // socket.current.emit("addUser", user._id);
+    // socket.current.on("getUsers", users=>{
+    //     setOnlineUsers(user.followings.filter((f)=> users.some((u) => u.userId == f)))
+    //     // console.log("from socket io",users)
+    //   })
   }
  
 },[user])  
 useEffect(()=>{
   //ws://localhost:8900
- // socket.current = io("https://hahu-chat-app-socket.herokuapp.com/");
- //console.log(socket.current)
-  
-    if(socket.current){
-      socket.current.on("getMessage", (data) =>{ // executes whene the a new message arrives
-       
-        console.log("arrived mess",data);
-        setArrivalMessageData({ fromSelf: false, message: data });
-        setArrivalMessage({
-          sender: data.senderId,
-          text: data.text,
-          createdAt: Date.now()
-        });
-     md = data
-      })
-   
-     console.log("socket Event")  
-    }
-},[socket])
+  // socket.current = io("https://hahu-chat-app-socket.herokuapp.com/")
+  socket.current.on("getMessage", data =>{ // executes whene the a new message arrives
+   setArrivalMessage({
+      sender: data.senderId,
+      text: data.text,
+      createdAt: Date.now()
+   })
+  })   
+},[])
 //console.log("message",messages);
-
+// useEffect(()=>{
+//   socket.current.emit("addUser", user?._id);
+//   socket.current.on("getUsers", users=>{
+//       setOnlineUsers(user?.followings.filter((f)=> users.some((u) => u.userId == f)))
+//   })
+// },[user])
 useEffect(()=>{
   console.log("new message setd")
 
@@ -115,8 +112,13 @@ useEffect(()=>{
 
    useEffect(()=>{
     const getMessage = async () =>{
+      const config ={
+        headers:{
+            Authorization: `Bearer ${authUser.token}`
+        }
+    }
         try{
-           const res = await axios.get("/messages/"+ conversID);
+           const res = await axios.get("/api/messages/get-messages/"+ conversID,config);
             setMessages(res.data);
         }catch(err){
             console.log(err)
@@ -126,8 +128,13 @@ useEffect(()=>{
   },[])
    useEffect(()=>{
     const getConversationDetail = async ()=>{
+      const config ={
+        headers:{
+            Authorization: `Bearer ${authUser.token}`
+        }
+    }
       try{
-          const res = await axios.get("/conversations/convid/" + conversID);
+          const res = await axios.get("/api/conversations/get-conversation/" + conversID,config);
           setConversationDetail(res.data)
       }catch(err){
         console.log(err)
@@ -145,9 +152,13 @@ const handleMessageSubmit = async (e) =>{
       text: newMessage,
       conversationId: conversationDetail._id,
   };
-  const receiverId = conversationDetail.members.find(member=> member !==user._id)
+  const receiverId = conversationDetail.members?.find(member=> member !==user._id)
       console.log("...........");
-    
+      const config ={
+        headers:{
+            Authorization: `Bearer ${authUser.token}`
+        }
+    }
       console.log(receiverId);
       socket.current.emit("sendMessage",{
           senderId: user._id,
@@ -155,7 +166,7 @@ const handleMessageSubmit = async (e) =>{
           text: newMessage,
       })
   try{
-      const res = await axios.post("/messages", message);
+      const res = await axios.post("/api/messages/create", message,config);
       setMessages([...messages, res.data])
       setNewMessage("")
      
@@ -168,10 +179,9 @@ useEffect(()=>{
 },[messages]);
 
    return(
-      <div className='mess'>
-         <div className="gobackArrow">
-     
-      </div>
+    <div className="chatBoxWrapper">
+      <div className='chatBoxTop'>
+        
       {
                 messages.map(m =>(
                     <div key={m._id} ref = {scrollRef}>
@@ -181,11 +191,14 @@ useEffect(()=>{
                 
                }
 
-        <div className="chatBoxBotton">
+       
+      </div>
+      <div className="chatBoxBotton">
                    <textarea className='chatMessageInput'  placeholder='Write Something..' onChange={(e) => setNewMessage(e.target.value) } value = {newMessage}></textarea>
                    <button className='chatSubmitButton' onClick={handleMessageSubmit}><SendIcon color="primary"/></button>
                </div>
       </div>
+
    )
 }
 function M2chatList() {

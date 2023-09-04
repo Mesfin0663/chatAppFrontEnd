@@ -9,7 +9,17 @@
 .postWrapper {
   padding: 10px;
 }
-
+.textf{
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  line-height: 16px; /* fallback */
+  max-height: 700px; /* fallback */
+  /* number of lines to show */
+  /* -webkit-line-clamp: 10;  */
+  -webkit-box-orient: vertical;
+}
 .postTop {
   display: flex;
   align-items: center;

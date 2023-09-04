@@ -30,13 +30,13 @@ function Conversations({conversations,user,setConversID}) {
 function ConversatinList({conversation,currentUser,setConversID}){
     let navigate = useNavigate();
     const [user, setUser] = useState({});
-    // const PF = process.env.REACT_APP_PUBLIC_FOLDER
+    const PF = process.env.REACT_APP_NODE_ENV==='development' ? process.env.REACT_APP_DEV_PUBLIC_FOLDER:process.env.REACT_APP_PROD_PUBLIC_FOLDER;
     useEffect(()=>{
       const friendId = conversation.members.find((m)=> m !== currentUser._id);
   
       const getUser = async ()=>{
         try{
-          const res = await axios("/users?userId="+ friendId);
+          const res = await axios("/api/users/getuser/?userId="+ friendId);
   
           setUser(res.data)
         }catch(err){
@@ -54,7 +54,7 @@ function ConversatinList({conversation,currentUser,setConversID}){
             
         navigate(`chat`)
     }} >
-        <img src={user.profilePicture ? user.profilePicture:  "assets/defaultProfile.png"} alt="" className="conversationImg" />
+        <img src={user.profilePicture ? user.profilePicture:  PF + "person/noAvatar.png"} alt="" className="conversationImg" />
        <div className='message'>
        <span className="conversationName">{user? user.username: ""}</span>
         <p>hello my friend !</p>

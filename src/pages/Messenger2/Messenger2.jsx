@@ -1,5 +1,7 @@
 import React, { useContext,useEffect, useState ,useRef} from 'react'
-import { AuthContext } from '../../context/AuthContext'
+import {UserContext} from '../../contexts/UserContext'
+import {useSelector, useDispatch} from 'react-redux'
+
 import axios from '../../axios';
 import { io } from "socket.io-client";
 import { styled, alpha } from '@mui/material/styles';
@@ -31,6 +33,7 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
  export default function Messenger2() {
     const [count,setCount] = useState(0) 
     //const [conversations, user, socketData] = useOutletContext();
+    const PF = import.meta.env.VITE_NODE_ENV==="development"? import.meta.env.VITE_REACT_APP_DEV_PUBLIC_FOLDER:import.meta.env.VITE_REACT_APP_PROD_PUBLIC_FOLDER;
 
     const [sidebar, setSidebar] = useState(false);
     const showSidebar = () => setSidebar(!sidebar);
@@ -45,8 +48,10 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
     const [currentChat, setCurrentChat] = useState(null);
     const [messages, setMessages] = useState({});
     const [newMessage, setNewMessage] = useState("");
-    
-    const {user} = useContext(AuthContext);
+    const {user:authUser} = useSelector((state)=> state.auth)
+    const {userData:user} = useContext(UserContext)
+    const {socket} = useContext(UserContext)
+    // const {user} = useContext(AuthContext);
     const [onlineUsers, setOnlineUsers] = useState([])
     const scrollRef = useRef(); // used to scroll to the most recent message by default
     //Fetching all conversation of a user 
@@ -68,9 +73,9 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
        window.removeEventListener("scroll", handleScroll);
      };
    }, []);
-useEffect(()=>{
-   console.log(scrollPosition)
-},[scrollPosition])
+// useEffect(()=>{
+//    console.log(scrollPosition)
+// },[scrollPosition])
     useEffect(()=>{
         if(location.pathname=="/messenger2"){
             setConversID(null)
@@ -85,10 +90,10 @@ useEffect(()=>{
 
     },[location])
     //let { path, url } = useRouteMatch();
-    let navigate = useNavigate();
-console.log(location.pathname);
+//     let navigate = useNavigate();
+// console.log(location.pathname);
  
-const socket = useRef(); // used to scroll to the most recent message by default
+// const socket = useRef(); // used to scroll to the most recent message by default
 //Fetching all conversation of a user 
 // useEffect(()=>{
 //   if(user){
@@ -112,8 +117,13 @@ const logout = () => {
         // Fetches all conversations that a single user participates in
         useEffect(()=>{
             const getConversations = async ()=>{
+              const config ={
+                headers:{
+                    Authorization: `Bearer ${authUser.token}`
+                }
+            }
                 try{
-                    const res = await axios.get("/conversations/" + user._id);
+                    const res = await axios.get("/api/conversations/get-allconversations/" + user._id,config);
                     setConversations(res.data)
                 }catch(err){
                   console.log(err)
@@ -121,7 +131,7 @@ const logout = () => {
             }
             getConversations();
     
-        },[user._id])
+        },[user?._id])
     // this is used to fetch messages from the database accoding to the conversatin iod
  
     
@@ -152,10 +162,10 @@ const logout = () => {
               color="inherit"
             >
         <div className="dropdown">
-       <img src={user.profilePicture? user.profilePicture: "assets/defaultProfile.png"} alt="" className="conversationImg dropbtn" />
+       <img src={user?.profilePicture? user?.profilePicture: PF + "person/noAvatar.png"} alt="" className="conversationImg dropbtn" />
 
   <div className="dropdown-content">
-    <Link to={""}>               <span className="">{user.username}</span>
+    <Link to={""}>               <span className="">{user?.username}</span>
 </Link>
 
     <Link to={""}>Acount</Link>

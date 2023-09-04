@@ -1,0 +1,23 @@
+.video{
+    width: 450px;
+    
+}
+@media only screen and (max-width: 600px) {
+    .video{
+        width: 300px;
+        
+    }
+  }
+.gridContainer{
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+.paper{
+    padding: 10px;
+    border: 2px solid black;
+    margin: 10px
+}
+.online{
+    /* margin-right: 20px; */
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './sidebar.css';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -9,76 +9,133 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import EventIcon from '@mui/icons-material/Event';
 import SchoolIcon from '@mui/icons-material/School';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
+import {
+     AccountBox,
+     Article,
+     Group,
+     Home,
+     ModeNight,
+     Person,
+     Settings,
+     Storefront,
+     Videocam,
+   } from "@mui/icons-material";
+   import {
+     Box,
+     List,
+     ListItem,
+     ListItemButton,
+     ListItemIcon,
+     ListItemText,
+     Switch,
+   } from "@mui/material";
+import { UserContext } from '../../contexts/UserContext';
 function Sidebar() {
-  return (
-    <div className="sidebar">
-      <div className="sidebarWrapper">
-        <ul className="sidebarList">
-          <li className="sidebarlistItem">
-               <RssFeedIcon className="sidebarIcon"/>
-         <span className="sidebarListItemText">Feed</span>
-          </li>
-          <li className="sidebarlistItem">
-               <ChatIcon className="sidebarIcon"/>
-               <Link to="/messenger2"> 
-               <span className="sidebarListItemText">Chats</span>
-               </Link>
-          </li>
-          <li className="sidebarlistItem">
-               <PlayCircleFilledWhiteIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Videos</span>
-          </li>
-          <li className="sidebarlistItem">
-               <GroupsIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Groups</span>
-          </li>
-          <li className="sidebarlistItem">
-               <BookmarkIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Bookmarks</span>
-          </li>
-          <li className="sidebarlistItem">
-               <HelpOutlineIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Questions</span>
-          </li>
-          {/* <li className="sidebarlistItem">
-               <WorkOutlineIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Jobs</span>
-          </li> */}
-          <li className="sidebarlistItem">
-               <EventIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Events</span>
-          </li>
-          {/* <li className="sidebarlistItem">
-               <SchoolIcon className="sidebarIcon"/>
-               <span className="sidebarListItemText">Courses</span>
-          </li> */}
-        </ul>
-        <button className="sidebarButton">
-          Show More
-        </button>
-        <hr />
-        <ul className="sidebarFriendList">
-          <li className="sidebarFriend">
-               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
-               <span className="sidebarFriendName">Jone Doe</span>
-          </li>
-          <li className="sidebarFriend">
-               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
-               <span className="sidebarFriendName">Jone Doe</span>
-          </li>
-          <li className="sidebarFriend">
-               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
-               <span className="sidebarFriendName">Jone Doe</span>
-          </li>
-          <li className="sidebarFriend">
-               <img src="assets/person/2.jpeg" alt="" className="sidebarFriendImg" />
-               <span className="sidebarFriendName">Jone Doe</span>
-          </li>
-        </ul>
-      </div>
+     const {userData,setMode,mode} = useContext(UserContext)
 
-    </div>
+  return (
+     <Box flex={1} p={2} sx={{ display: { xs:"none",sm: "none", md: "block" } ,flex:"2", height: "100vh"}}>
+     <Box position="fixed">
+     <List>
+         <ListItem disablePadding>
+         <Link to="/" style={{color:"inherit"}}>
+         <ListItemButton component="a" href="#home">
+            
+            <ListItemIcon>
+              <Home />
+            </ListItemIcon>
+            <ListItemText primary="Homepage" />
+          </ListItemButton>
+            </Link>
+         
+         </ListItem>
+
+         <ListItem disablePadding>
+         <Link to="/chatpage" style={{color:"inherit"}}>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+             <ChatIcon />
+             </ListItemIcon>
+             <ListItemText primary="Chat" />
+           </ListItemButton>
+           </Link>
+         </ListItem>
+
+         <ListItem disablePadding>
+         <Link to="/secure-chat" style={{color:"inherit"}}>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+             <ChatIcon />
+             </ListItemIcon>
+             <ListItemText primary="Secure Chat" />
+           </ListItemButton>
+           </Link>
+         </ListItem>
+         {/* <ListItem disablePadding>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+               <Article />
+             </ListItemIcon>
+             <ListItemText primary="Pages" />
+           </ListItemButton>
+         </ListItem> */}
+                  <Link to="/videochat" style={{color:"inherit"}}>
+
+         <ListItem disablePadding>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+             <Videocam/>
+             </ListItemIcon>
+             <ListItemText primary="Videochat" />
+           </ListItemButton>
+         </ListItem>
+         </Link>
+         <Link to="/friends" style={{color:"inherit"}}>
+
+         <ListItem disablePadding>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+               <Person />
+             </ListItemIcon>
+             <ListItemText primary="Friends" />
+           </ListItemButton>
+         </ListItem>
+        </Link>
+
+        <Link to={`/profile/${userData?.username}`} style={{color:"inherit"}}>
+
+         <ListItem disablePadding>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+               <AccountBox />
+             </ListItemIcon>
+             <ListItemText primary="Profile" />
+           </ListItemButton>
+         </ListItem>
+        </Link>
+
+         <ListItem disablePadding>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+               <ModeNight />
+             </ListItemIcon>
+             <Switch onChange={e=>setMode(mode === "light" ? "dark" : "light")}/>
+           </ListItemButton>
+         </ListItem>
+
+         
+         {/* <ListItem disablePadding>
+           <ListItemButton component="a" href="#simple-list">
+             <ListItemIcon>
+               <Settings />
+             </ListItemIcon>
+             <ListItemText primary="Settings" />
+           </ListItemButton>
+         </ListItem> */}
+       </List>
+     </Box>
+   </Box>
   )
 }
 

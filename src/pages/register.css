@@ -1,0 +1,17 @@
+.registerPage{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    margin: 0;
+}
+.form-group{
+    display: flex;
+    flex-direction: column;
+}
+a:link { text-decoration: none; }
+.form-control{
+    padding: 8px 0;
+    margin: 5px 0;
+}

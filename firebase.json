@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "site":"hahu-chat-app",
-    "public": "dist",
+    "site":"hahu-chat",
+    "public": "build",
     "ignore": [
       "firebase.json",
       "**/.*",

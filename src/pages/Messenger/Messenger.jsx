@@ -1,33 +1,45 @@
 import React, { useContext, useState,useRef } from 'react'
-import Toolbar from '../../components/Toolbar/Toolbar'
-import { AuthContext } from '../../context/AuthContext'
+import Toolbar from '../../components/Navbar/Navbar'
 import Conversations from '../../components/Conversations/Conversations';
 import Message from '../../components/message/Message';
 import ChatOnline from '../../components/ChatOnline/ChatOnline';
 import { useEffect } from 'react';
 import axios from '../../axios';
 import { io } from "socket.io-client";
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import SendIcon from '@mui/icons-material/Send';
+import PhoneIcon from '@mui/icons-material/Phone';
 
 import './messenger.css';
+import { useSelector } from 'react-redux';
+import { UserContext } from '../../contexts/UserContext';
+import { SocketContext } from '../../contexts/SocketContext';
+import { Box, Card, CardContent, Container ,Typography,Alert} from '@mui/material';
+import { Link } from 'react-router-dom';
 
 function Messenger() {
+    const { onlineUsers:AllOnlineUsers
+    
+      } = useContext(SocketContext)
     const [conversations, setConversations] = useState([]);
     const [currentChat, setCurrentChat] = useState(null);
     const [messages, setMessages] = useState({});
     const [newMessage, setNewMessage] = useState("");
-    const {user} = useContext(AuthContext);
+    const {user:authUser} = useSelector((state)=> state.auth)
+    const {userData:user,windowsize} = useContext(UserContext)
+    const {socket} = useContext(UserContext)
+
     const [onlineUsers, setOnlineUsers] = useState([])
     const scrollRef = useRef(); // used to scroll to the most recent message by default
     //Fetching all conversation of a user 
+  const PF = process.env.VITE_REACT_APP_PUBLIC_FOLDER;
 
    const [arrivalMessage, setArrivalMessage] = useState(null);
-   const socket = useRef()
+//    const socket = useRef()
    useEffect(()=>{
     //ws://localhost:8900
-    socket.current = io("https://hahu-chat-app-socket.herokuapp.com/")
-    socket.current.on("getMessage", data =>{ // executes whene the a new message arrives
+    // socket.current = io("https://hahu-chat-app-socket.herokuapp.com/")
+    socket.on("getMessage", data =>{ // executes whene the a new message arrives
      setArrivalMessage({
         sender: data.senderId,
         text: data.text,
@@ -44,17 +56,23 @@ useEffect(()=>{
 },[arrivalMessage, currentChat])
 
     useEffect(()=>{
-        socket.current.emit("addUser", user._id);
-        socket.current.on("getUsers", users=>{
-            setOnlineUsers(user.followings.filter((f)=> users.some((u) => u.userId == f)))
-        })
-    },[user])
-   console.log(onlineUsers);
+        setOnlineUsers(user?.followings.filter((f)=> AllOnlineUsers.some((u) => u.userId == f)))
+        // console.log(AllOnlineUsers)
+
+        // socket.on("getUsers", users=>{
+        // })
+    },[AllOnlineUsers,user?.followings])
+//    console.log(onlineUsers);
     // Fetches all conversations that a single user participates in
     useEffect(()=>{
         const getConversations = async ()=>{
+            const config ={
+                headers:{
+                    Authorization: `Bearer ${authUser.token}`
+                }
+            }
             try{
-                const res = await axios.get("/conversations/" + user._id);
+                const res = await axios.get("/api/conversations/get-allconversations/" + user?._id,config);
                 setConversations(res.data)
             }catch(err){
               console.log(err)
@@ -62,12 +80,17 @@ useEffect(()=>{
         }
         getConversations();
 
-    },[user._id])
+    },[user?._id])
 // this is used to fetch messages from the database accoding to the conversatin iod
     useEffect(()=>{
         const getMessage = async () =>{
+            const config ={
+                headers:{
+                    Authorization: `Bearer ${authUser.token}`
+                }
+            }
             try{
-               const res = await axios.get("/messages/"+ currentChat?._id);
+               const res = await axios.get("/api/messages/get-messages/"+ currentChat?._id ,config);
                 setMessages(res.data);
             }catch(err){
                 console.log(err)
@@ -75,24 +98,34 @@ useEffect(()=>{
         }
         getMessage()
     },[currentChat])
-
+// console.log(messages)
     const handleMessageSubmit = async (e) =>{
         e.preventDefault();
+        const config ={
+            headers:{
+                Authorization: `Bearer ${authUser.token}`
+            }
+        }
+        const receiverId = currentChat.members.find(member=> member !==user._id)
+
         const message = {
             sender: user._id,
+            senderName: user.username,
             text: newMessage,
+            receiver:receiverId,
             conversationId: currentChat._id,
         };
        
         try{
-            const res = await axios.post("/messages", message);
+            const res = await axios.post("/api/messages/create", message,config);
             setMessages([...messages, res.data])
             setNewMessage("")
             const receiverId = currentChat.members.find(member=> member !==user._id)
-            socket.current.emit("sendMessage",{
+            socket.emit("sendMessage",{
                 senderId: user._id,
                 receiverId,
                 text: newMessage,
+                senderName: user.username
             })
         }catch(err){
             console.log(err)
@@ -106,10 +139,10 @@ useEffect(()=>{
     },[messages]);
   return (
 
-    <>
-  <Toolbar username ={user.username}/>
+    <Container>
+  {/* <Toolbar username ={user?.username}/> */}
       <div className="messenger">
-        <div className="chatMenu">
+        <Box  className="chatMenu">
             <div className="chatMenuWrapper">
                 <input placeholder='Conversations' type="text" className="chatMenuInput" />
                {
@@ -120,14 +153,14 @@ useEffect(()=>{
                 ))
                }
             </div>
-        </div>
-        <div className="chatBox">
+        </Box>
+        <Box className="chatBox">
             <div className="chatBoxWrapper">
             {
                         currentChat? <>
                <div className="chatBoxTop">    
                {
-                messages.map(m =>(
+                messages?.map(m =>(
                     <div key={m._id} ref = {scrollRef}>
                     <Message  message={m} own={m.sender === user._id} imgsrc = '' senderId={m.sender}/>
                     </div>
@@ -135,25 +168,56 @@ useEffect(()=>{
                }
                </div>
                <div className="chatBoxBottom">
-                   <textarea className='chatMessageInput'  placeholder='Write Something..' onChange={(e) => setNewMessage(e.target.value) } value = {newMessage}></textarea>
+                <Link to="/videochat">
+                <PhoneIcon  color="primary"/>
+
+                </Link>
+                   <textarea className='chatMessageInput'  placeholder='Write Something..' onChange={(e) => setNewMessage(e.target.value) } value = {newMessage}    onKeyPress={
+                  event => {
+                    if (event.key === 'Enter') {
+                        handleMessageSubmit(event)
+                    }
+                  }
+                  }></textarea>
                    <button className='chatSubmitionButton' onClick={handleMessageSubmit}><SendIcon color="primary"/></button>
                </div>
-                        </>: <span className='noConversationText'>Open a conversation to start a chat</span>
+                        </>: 
+                        
+                        <Box sx={{ display: { xs:"none",sm: "none", md: "block" }}} >
+                      <Box sx={{height:'100vh',display:"flex" , alignItems: 'center', justifyContent:"center"}}>
+     
+
+     <Card sx={{ maxWidth: 345 }}>
+  
+     <CardContent>
+       <Typography gutterBottom variant="h5" component="div">
+         HaHu Chat👻
+       </Typography>
+       <Typography variant="body2" color="text.secondary">
+       <Alert severity="info"> Open a conversation to start a chat !!</Alert>
+
+      
+       </Typography>
+     </CardContent>
+   
+   </Card>
+     </Box>
+                            </Box>
                     }
                 
             </div>
-        </div>
-        <div className="chatOnline">
+        </Box>
+        <Box sx={{ display: { xs:"none",sm: "none", md: "block" }}} >
             <div className="chatOnlineWrapper">
-            
-                <ChatOnline onlineUsers={onlineUsers} currentId = {user._id} setCurrentChat={setCurrentChat}/>
+        
+                <ChatOnline onlineUsers={onlineUsers} currentId = {user?._id} setCurrentChat={setCurrentChat}/>
        
 
             </div>
-        </div>
+        </Box>
       </div>
     
-    </>
+    </Container>
 
   )
 

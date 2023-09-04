@@ -7,6 +7,8 @@
     align-items: center;
     padding: 0 15px;
     color: white;
+    transform: translate(-50%, -50%);
+
 }
 .fixed{
     position: fixed;
@@ -70,6 +72,7 @@
     top: 0;
     left: -100%;
     transition: 850ms;
+    z-index: 5;
 }
 .nav-menu.active{
     left: 0;

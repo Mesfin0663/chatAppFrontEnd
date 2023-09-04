@@ -5,17 +5,38 @@ import { useContext, useEffect, useState } from "react";
 import axios from '../../axios';
 import {format} from "timeago.js";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
+import {useSelector, useDispatch} from 'react-redux'
 
+import { Favorite, FavoriteBorder, Share } from "@mui/icons-material";
+import {
+  Avatar,
+  Box,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  CardMedia,
+  Checkbox,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 export default function Post({ post }) {
+  const PF = process.env.REACT_APP_NODE_ENV==='development' ? process.env.REACT_APP_DEV_PUBLIC_FOLDER:process.env.REACT_APP_PROD_PUBLIC_FOLDER;
+
   const [like,setLike] = useState(post.likes.length)
   const [isLiked,setIsLiked] = useState(false)
   const [user,setUser] = useState({})
-const {user: currentUser} = useContext(AuthContext)
-  const PF = import.meta.env.VITE_REACT_APP_PUBLIC_FOLDER;
+  const {user:currentUser} = useSelector((state)=> state.auth)
   const likeHandler =()=>{
+
     try{
-      axios.put("/posts/" + post._id + "/like", {userId:currentUser._id})
+      const config ={
+        headers:{
+            Authorization: `Bearer ${currentUser.token}`
+        }
+    }
+      axios.put(`/api/posts/like/${post._id}`,{userId:currentUser._id},config)
     }catch(err){
       console.log(err)
     }
@@ -26,8 +47,8 @@ const {user: currentUser} = useContext(AuthContext)
 
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`/users/${post.userId}`);
-        console.log(res)
+        const res = await axios.get(`/api/users/getuser?userId=${post.userId}`);
+ 
         setUser(res.data)
       } catch (err) {
         console.log(err)
@@ -39,43 +60,45 @@ const {user: currentUser} = useContext(AuthContext)
   }, [post.userId])
 
   return (
-    <div className="post">
-      <div className="postWrapper">
-        <div className="postTop">
-          <div className="postTopLeft">
-          <Link to={`/profile/${user.username}`}> 
-            <img
-              className="postProfileImg"
-              src={user.profilePicture || PF+ "person/noAvatar.png"}
-              alt=""
-            />
-          </Link>
-          <Link to={`/profile/${user.username}`}> 
-            <span className="postUsername">
-              {user.username}
-            </span>
-          </Link>
-            <span className="postDate">{format(post.createdAt)}</span>
-          </div>
-          <div className="postTopRight">
-            <MoreVert />
-          </div>
+    <Card className="post">
+    <div className="postWrapper">
+      <div className="postTop">
+        <div className="postTopLeft">
+        <Link to={`/profile/${user.username}`}> 
+          <img
+            className="postProfileImg"
+            src={user.profilePicture || PF+ "person/noAvatar.png"}
+            alt=""
+          />
+        </Link>
+        <Link to={`/profile/${user.username}`}> 
+          <span className="postUsername">
+            {user.username}
+          </span>
+        </Link>
+          <span className="postDate">{format(post.createdAt)}</span>
         </div>
-        <div className="postCenter">
-          <span className="postText">{post?.desc}</span>
-          <img className="postImg" src={post.img } alt="" />
+        <div className="postTopRight">
+          <MoreVert />
         </div>
-        <div className="postBottom">
-          <div className="postBottomLeft">
-            <img className="likeIcon" src={`${PF}like.png`} onClick={likeHandler} alt="" />
-            <img className="likeIcon" src={`${PF}heart.png`} onClick={likeHandler} alt="" />
-            <span className="postLikeCounter">{like} people like it</span>
-          </div>
-          <div className="postBottomRight">
-            <span className="postCommentText">{post.comment} comments</span>
-          </div>
+      </div>
+      <div className="postCenter">
+      <div dangerouslySetInnerHTML={ { __html: post?.desc } } ></div>
+
+        {/* <html className="postText textf">{post?.desc}</html> */}
+        <img className="postImg" src={post.img } alt="" />
+      </div>
+      <div className="postBottom">
+        <div className="postBottomLeft">
+          <img className="likeIcon" src={`${PF}like.png`} onClick={likeHandler} alt="" />
+          <img className="likeIcon" src={`${PF}heart.png`} onClick={likeHandler} alt="" />
+          <span className="postLikeCounter">{like} people like it</span>
+        </div>
+        <div className="postBottomRight">
+          <span className="postCommentText">{post.comment} comments</span>
         </div>
       </div>
     </div>
+  </Card>
   );
 }

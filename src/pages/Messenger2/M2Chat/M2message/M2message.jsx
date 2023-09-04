@@ -6,12 +6,12 @@ import axios from '../../../../axios';
 function M2message({message,own,senderId}) {
   const [senderProfile, setSenderProfile ] = useState(null);
   const [senderName, setSenderName] = useState("");
-  const PF = import.meta.env.VITE_REACT_APP_PUBLIC_FOLDER;
+  const PF = import.meta.env.VITE_NODE_ENV==="development"? import.meta.env.VITE_REACT_APP_DEV_PUBLIC_FOLDER:import.meta.env.VITE_REACT_APP_PROD_PUBLIC_FOLDER;
   const [loading,setLoading]= useState(true)
   useEffect(()=>{
     const getSenderData = async () =>{
         try{
-           const res = await axios.get("/users/"+ senderId);
+           const res = await axios.get("/api/users/getuser/?userId="+ senderId);
            setSenderProfile(res.data.profilePicture);
            setSenderName(res.data.username)
            setLoading(true)
